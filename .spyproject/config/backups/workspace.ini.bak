@@ -1,0 +1,12 @@
+[workspace]
+restore_data_on_startup = True
+save_data_on_exit = True
+save_history = True
+save_non_project_files = False
+project_type = 'empty-project-type'
+recent_files = ['C:\\Users\\Superviseur\\.spyder-py3\\temp.py', 'app.py', 'templates\\user_main.html', 'templates\\charge_profile.html', 'electrical_equipment\\heatpump.py', '..\\..\\..\\..\\2 PV_Battery_Grid Sizing\\3 Python Model\\sizing_PV_Batteries.py', "..\\..\\..\\..\\2 PV_Battery_Grid Sizing\\3 Python Model\\exemple d'optimisation 1.py", '..\\..\\untitledOP.py', '..\\..\\untitled1OP.py', '..\\..\\Refirigerator\\untitled2OP.py', '..\\..\\Heat pump\\HP_Test.py']
+
+[main]
+version = 0.2.0
+recent_files = []
+

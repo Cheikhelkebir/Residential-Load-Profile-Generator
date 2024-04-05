@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load Profile Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .centered-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        h1 { font-size: 50px; margin-bottom: 20px; }
+        h2 { font-size: 24px; margin-top: 20px; }
+        button, .btn-primary {
+            padding: 10px 20px;
+            font-size: 18px;
+            display: block;
+            margin: 20px auto;
+        }
+        label { display: inline-block; width: 200px; }
+        input[type="text"], select, input[type="number"] { margin-bottom: 10px; }
+        .hidden { display: none; }
+        table, th, td {
+            border-collapse: collapse;
+            width: 100%;
+            border: 0.1px solid #dddddd;
+            text-align: center;
+            padding: 2px;
+        }
+        th { background-color: #f2f2f2; }
+        canvas { border: 0.1px solid black; }
+
+        #fields_for_cb1 { 
+            display: none; 
+        }
+        #fields_for_cb2 { 
+            display: none; 
+        }
+        #fields_for_cb3 { 
+            display: none; 
+        }
+        #fields_for_cb4 { 
+            display: none; 
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form action="/process_form" method="post"> 
+        <div class="content">
+            <h1>Load Profile Generator</h1>
+             
+            <!-- Location -->
+            <h2>Location</h2>
+            <button type="button" id="getLocationBtn" class="btn btn-primary">Get Location</button>
+            <p id="location"></p>
+           <!-- End of Location -->
+
+           <!-- Forecast chart -->
+            <canvas id="weatherChart" width="400" height="200"></canvas>
+          <!-- End of Forecast chart -->
+          
+          <!-- Next day status -->
+          <h2>Next Day Status</h2>
+            <label for="Next-day-status">Schedule Status:</label>
+            <select id="Next-day-status" name="Next-day-status">
+                <option value="Tomorrow">  </option>
+                <option value="Workday">Workday</option>
+                <option value="Weekend Day">Weekend Day</option>
+                <option value="Holiday">Holiday</option>
+           </select>
+          <!-- End of Next day status -->
+          
+          
+          <h2>Household occupants</h2>
+          <label for="Household-occupants">Number of occupants living in the house:</label>
+         <input type="text" id="Household-occupants" name="Household-occupants" value="4"><br>
+
+          <!-- PRESENCE of residents in the house -->
+          <h2>Occupancy schedules</h2>
+          <table id="residentsTable">
+              <thead>
+                <tr>
+               <th>Hour</th>
+                </tr>
+             </thead>
+             <tbody>
+             <tr>
+          <td>Occupancy</td>  
+             </tr>
+            </tbody>
+            </table>
+          <input type="hidden" name="Occupancy" id="hiddenOccupancy" value="">
+          <button type="button" onclick="updateChart()">Occupancy profile</button>
+          <canvas id="myChart" width="400" height="200"></canvas>       
+       <!-- End of PRESENCE of residents in the house -->
+       
+       <!-- Simulation step time -->
+       <h2>Simulation step time</h2>
+       <label for="Simulation-StepTime">Step Time (s):</label>
+      <input type="text" id="Simulation-StepTime" name="Simulation-StepTime" value="1"><br>
+       <!-- End of Simulation step time -->
+
+       <!-- House geometry -->
+       <h2>House geometry</h2>
+       <label for="house-Surface">House Surface (m<sup>2</sup>):</label>
+      <input type="text" id="house-Surface" name="house-Surface" value="80"><br>
+      <label for="house-height">House height (m):</label>
+      <input type="text" id="house-height" name="house-height" value="2.5"><br>
+      <label for="roof-pitch">Roof pitch angle:</label>
+      <input type="text" id="roof-pitch" name="roof-pitch" value="0"><br>
+      <label for="num-windows">Number of windows:</label>
+      <input type="text" id="num-windows" name="num-windows" value="5"><br>
+      <label for="window-surface">Surface of window (m<sup>2</sup>):</label>
+      <input type="text" id="window-surface" name="window-surface" value="1">
+      <!-- End House geometry -->
+
+      <!-- Isolation type -->
+      <h2>Isolation type</h2>
+      <label for="isolation-type">Standard:</label>
+      <select id="isolation-type" name="isolation-type">
+          <option value="RT 2012">RT 2012</option>
+          <option value="RT 2020">RT 2020</option>
+      </select>
+      <!-- End of Isolation type -->
+      
+      <!-- Cold water temperature -->
+      <input type="hidden" id="cold-water" name="cold-water" value="10">
+      <!-- End of Cold water temperature -->
+
+      <!-- Appliances -->
+      <h2>Appliances</h2>
+       <!-- Heating cooling system -->
+       <h2>Cooling/Heating System</h2>
+       <select name="heating-system-type" class="form-select" aria-label="Default select example" onchange="showAdditionalFields(this.value)">
+           <option selected>Types</option>
+           <option value="1">Air/air heat pump</option>
+       </select>
+       
+       <!-- Additional fields for Air/air heat pump -->
+       <div id="additional-fields" style="display: none;">
+           <h2>Additional Fields</h2>
+           <label for="nominal-power">Nominal power (W):</label>
+           <input type="text" id="nominal-power" name="nominal-power" value="3800"><br>
+       </div>
+       <!-- End of Heating cooling system -->
+
+       <!-- Water heater -->
+       <h2>Water Heater</h2>
+       <select name="water-heater-type" class="form-select" aria-label="Default select example" onchange="showAdditionalFieldsWaterHeater(this.value)">
+           <option selected>Types</option>
+           <option value="1">Electric Water Heater</option>
+       </select>
+       
+       <!-- Additional fields for Electric Water Heater -->
+       <div id="additional-fields-water-heater" style="display: none;">
+           <h2>Additional Fields for Electric Water Heater</h2>
+           <label for="nominal-power-water-heater">Nominal power (W):</label>
+           <input type="text" id="nominal-power-water-heater" name="nominal-power-water-heater" value="2000"><br>
+           <label for="water-tank-volume">Volume of water tank (m<sup>3</sup>) :</label>
+           <input type="text" id="water-tank-volume" name="water-tank-volume" value="0.2"><br>
+       </div>
+       <!-- End of Water heater -->
+
+       <!-- Refrigerator -->
+       <h2>Refrigerator and Freezer</h2>
+       <select name="refrigerator-type" class="form-select" aria-label="Default select example" onchange="showAdditionalFieldsRefrigerator(this.value)">
+           <option selected>Types</option>
+           <option value="1">Refrigerator</option>
+       </select>
+       
+       <!-- Additional fields for Refrigerator -->
+       <div id="additional-fields-refrigerator" style="display: none;">
+           <h2>Additional Fields for Refrigerator</h2>
+           <label for="nominal-power-refrigerator">Nominal power (W):</label>
+           <input type="text" id="nominal-power-refrigerator" name="nominal-power-refrigerator" value="80"><br>
+           <label for="length-refrigerator">Length (m):</label>
+           <input type="text" id="length-refrigerator" name="length-refrigerator" value="0.48"><br>
+           <label for="width-refrigerator">Width (m):</label>
+           <input type="text" id="width-refrigerator" name="width-refrigerator" value="0.44"><br>
+           <label for="height-refrigerator">Height (m):</label>
+           <input type="text" id="height-refrigerator" name="height-refrigerator" value="0.55"><br>
+           <label for="thickness-refrigerator">Thickness (m):</label>
+           <input type="text" id="thickness-refrigerator" name="thickness-refrigerator" value="0.035"><br>
+           <label for="num-drawers-refrigerator">Number of drawers:</label>
+           <input type="text" id="num-drawers-refrigerator" name="num-drawers-refrigerator" value="2"><br>
+           <label for="num-shelves-refrigerator">Number of shelves:</label>
+           <input type="text" id="num-shelves-refrigerator" name="num-shelves-refrigerator" value="3"><br>
+       </div>
+       <!-- End of Refrigerator -->
+       
+       <!-- Washing devices -->
+       <h2>Washing Devices</h2>
+       <div class="form-check form-switch">
+          <input class="form-check-input device-checkbox" type="checkbox" id="Washingmachine-checkbox" data-device="Washingmachine">
+          <label class="form-check-label" for="Washingmachine-checkbox">Washing Machine</label>
+       </div>
+       <div class="fields_for_device" id="fields_for_Washingmachine" style="display:none;">
+         <!-- Nominal Power Field -->
+         <div class="mb-3">
+           <label for="Temperature-setting-for-washing" class="form-label">Washing Temp. Setting (°C):</label>
+           <input type="text" class="form-control" id="Temperature-setting-for-washing" name="Temperature-setting-for-washing" value="40">
+         </div>
+         <div class="mb-3">
+           <label for="Starting-time" class="form-label">Starting Time (hh:mm) :</label>
+           <input type="text" class="form-control" id="Starting-time" name="Starting-time" value="11:00">
+         </div>
+         <input type="hidden" name="Washingmachine_enabled" id="Washingmachine-enabled" value="false">
+      </div>
+         <!-- end of Washing devices -->
+    
+
+
+            <!-- ON/OFF appliances -->
+            <h2>Punctual loads</h2>
+               <!-- Checkboxes -->
+            
+               <!-- TV -->
+    <div class="form-check form-switch">
+      <input class="form-check-input device-checkbox" type="checkbox" id="tv-checkbox" data-device="tv">
+      <label class="form-check-label" for="tv-checkbox">TV</label>
+    </div>
+    <div class="fields_for_device" id="fields_for_tv" style="display:none;">
+      <!-- Nominal Power Field -->
+      <div class="mb-3">
+        <label for="tv-nominal-power" class="form-label">Nominal power (W):</label>
+        <input type="text" class="form-control" id="tv-nominal-power" name="tv_nominal_power" value="55">
+      </div>
+      <!-- Dynamic Fields for Starting Time and Duration -->
+      <div class="dynamic-fields" id="dynamic_tv_fields">
+        <!-- Existing Starting Time and Duration Field -->
+        <div class="mb-3">
+          <label for="tv_starting_time_0" class="form-label">Starting Time:</label>
+          <input type="text" class="form-control" name="tv_starting_time_0" value="19:47">
+        </div>
+        <div class="mb-3">
+          <label for="tv_duration_0" class="form-label">Duration:</label>
+          <input type="text" class="form-control" name="tv_duration_0" value="227">
+        </div>
+      </div>
+      <!-- Button to Add More Fields -->
+      <button type="button" class="btn btn-primary add-fields-btn" data-device="tv">Add new Starting Time and Duration</button>
+      
+      <input type="hidden" name="tv_enabled" id="tv-enabled" value="false">
+    </div>
+              <!-- End TV -->
+
+              <!-- Microwave Section -->
+    <div class="form-check form-switch">
+      <input class="form-check-input device-checkbox" type="checkbox" id="microwave-checkbox" data-device="microwave">
+      <label class="form-check-label" for="microwave-checkbox">Microwave</label>
+    </div>
+    <div class="fields_for_device" id="fields_for_microwave" style="display:none;">
+      <!-- Nominal Power Field -->
+      <div class="mb-3">
+        <label for="microwave-nominal-power" class="form-label">Nominal power (W):</label>
+        <input type="text" class="form-control" id="microwave-nominal-power" name="microwave_nominal_power" value="900">
+      </div>
+      <!-- Dynamic Fields for Starting Time and Duration -->
+      <div class="dynamic-fields" id="dynamic_microwave_fields">
+        <!-- Initial Starting Time Field -->
+        <div class="mb-3">
+          <label for="microwave_starting_time_0" class="form-label">Starting Time:</label>
+          <input type="text" class="form-control" name="microwave_starting_time_0" value="19:10">
+        </div>
+        <!-- Initial Duration Field -->
+        <div class="mb-3">
+          <label for="microwave_duration_0" class="form-label">Duration:</label>
+          <input type="text" class="form-control" name="microwave_duration_0" value="10">
+        </div>
+      </div>
+      <!-- Button to Add More Fields -->
+      <button type="button" class="btn btn-primary add-fields-btn" data-device="microwave">Add new Starting Time and Duration</button>
+    
+    <input type="hidden" name="microwave_enabled" id="microwave-enabled" value="false">
+    </div>
+            <!-- End of Microwave Section -->
+
+           <!-- Oven Section -->
+    <div class="form-check form-switch">
+        <input class="form-check-input device-checkbox" type="checkbox" id="oven-checkbox" data-device="oven">
+        <label class="form-check-label" for="oven-checkbox">Oven</label>
+    </div>
+    <div class="fields_for_device" id="fields_for_oven" style="display:none;">
+        <!-- Nominal Power Field -->
+        <div class="mb-3">
+            <label for="oven-nominal-power" class="form-label">Nominal power (W):</label>
+            <input type="text" class="form-control" id="oven-nominal-power" name="oven_nominal_power" value="900">
+        </div>
+        <!-- Dynamic Fields for Starting Time and Duration -->
+        <div class="dynamic-fields" id="dynamic_oven_fields">
+            <!-- Initial Starting Time Field -->
+            <div class="mb-3">
+                <label for="oven_starting_time_0" class="form-label">Starting Time:</label>
+                <input type="text" class="form-control" name="oven_starting_time_0" value="12:00">
+            </div>
+            <!-- Initial Duration Field -->
+            <div class="mb-3">
+                <label for="oven_duration_0" class="form-label">Duration:</label>
+                <input type="text" class="form-control" name="oven_duration_0" value="51">
+            </div>
+        </div>
+        <!-- Button to Add More Fields -->
+        <button type="button" class="btn btn-primary add-fields-btn" data-device="oven">Add new Starting Time and Duration</button>
+        
+        <input type="hidden" name="oven_enabled" id="oven-enabled" value="false">
+    </div>
+          <!-- End of Oven Section -->
+
+           <!-- Iron Section -->
+    <div class="form-check form-switch">
+        <input class="form-check-input device-checkbox" type="checkbox" id="iron-checkbox" data-device="iron">
+        <label class="form-check-label" for="iron-checkbox">Iron</label>
+    </div>
+    <div class="fields_for_device" id="fields_for_iron" style="display:none;">
+        <div class="mb-3">
+            <label for="iron-nominal-power" class="form-label">Nominal power (W):</label>
+            <input type="text" class="form-control" id="iron-nominal-power" name="iron_nominal_power" value="1800">
+        </div>
+        <div class="dynamic-fields" id="dynamic_iron_fields">
+            <div class="mb-3">
+                <label for="iron_starting_time_0" class="form-label">Starting Time:</label>
+                <input type="text" class="form-control" name="iron_starting_time_0" value="09:00">
+            </div>
+            <div class="mb-3">
+                <label for="iron_duration_0" class="form-label">Duration:</label>
+                <input type="text" class="form-control" name="iron_duration_0" value="45">
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary add-fields-btn" data-device="iron">Add new Starting Time and Duration</button>
+        
+        <input type="hidden" name="iron_enabled" id="iron-enabled" value="false">
+    </div>
+           <!-- End of Iron Section -->
+
+           <!-- Hair Dryer Section -->
+    <div class="form-check form-switch">
+        <input class="form-check-input device-checkbox" type="checkbox" id="hairdryer-checkbox" data-device="hairdryer">
+        <label class="form-check-label" for="hairdryer-checkbox">Hair Dryer</label>
+    </div>
+    <div class="fields_for_device" id="fields_for_hairdryer" style="display:none;">
+        <div class="mb-3">
+            <label for="hairdryer-nominal-power" class="form-label">Nominal power (W):</label>
+            <input type="text" class="form-control" id="hairdryer-nominal-power" name="hairdryer_nominal_power" value="1500">
+        </div>
+        <div class="dynamic-fields" id="dynamic_hairdryer_fields">
+            <div class="mb-3">
+                <label for="hairdryer_starting_time_0" class="form-label">Starting Time:</label>
+                <input type="text" class="form-control" name="hairdryer_starting_time_0" value="07:00">
+            </div>
+            <div class="mb-3">
+                <label for="hairdryer_duration_0" class="form-label">Duration:</label>
+                <input type="text" class="form-control" name="hairdryer_duration_0" value="30">
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary add-fields-btn" data-device="hairdryer">Add new Starting Time and Duration</button>
+        
+        <input type="hidden" name="hairdryer_enabled" id="hairdryer-enabled" value="false">
+    </div>
+        <!-- End of Hair Dryer Section -->
+    
+          <!-- Fan Section -->
+    <div class="form-check form-switch">
+        <input class="form-check-input device-checkbox" type="checkbox" id="fan-checkbox" data-device="fan">
+        <label class="form-check-label" for="fan-checkbox">Fan</label>
+    </div>
+    <div class="fields_for_device" id="fields_for_fan" style="display:none;">
+        <div class="mb-3">
+            <label for="fan-nominal-power" class="form-label">Nominal power (W):</label>
+            <input type="text" class="form-control" id="fan-nominal-power" name="fan_nominal_power" value="100">
+        </div>
+        <div class="dynamic-fields" id="dynamic_fan_fields">
+            <div class="mb-3">
+                <label for="fan_starting_time_0" class="form-label">Starting Time:</label>
+                <input type="text" class="form-control" name="fan_starting_time_0" value="12:00">
+            </div>
+            <div class="mb-3">
+                <label for="fan_duration_0" class="form-label">Duration:</label>
+                <input type="text" class="form-control" name="fan_duration_0" value="60">
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary add-fields-btn" data-device="fan">Add new Starting Time and Duration</button>
+        
+        <input type="hidden" name="fan_enabled" id="fan-enabled" value="false">
+    </div>
+          <!-- End of Fan Section -->
+    
+    
+        <!-- Game Console Section -->
+    <div class="form-check form-switch">
+        <input class="form-check-input device-checkbox" type="checkbox" id="gameconsole-checkbox" data-device="gameconsole">
+        <label class="form-check-label" for="gameconsole-checkbox">Game Console</label>
+    </div>
+    <div class="fields_for_device" id="fields_for_gameconsole" style="display:none;">
+        <div class="mb-3">
+            <label for="gameconsole-nominal-power" class="form-label">Nominal power (W):</label>
+            <input type="text" class="form-control" id="gameconsole-nominal-power" name="gameconsole_nominal_power" value="80">
+        </div>
+        <div class="dynamic-fields" id="dynamic_gameconsole_fields">
+            <div class="mb-3">
+                <label for="gameconsole_starting_time_0" class="form-label">Starting Time:</label>
+                <input type="text" class="form-control" name="gameconsole_starting_time_0" value="18:00">
+            </div>
+            <div class="mb-3">
+                <label for="gameconsole_duration_0" class="form-label">Duration:</label>
+                <input type="text" class="form-control" name="gameconsole_duration_0" value="51">
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary add-fields-btn" data-device="gameconsole">Add new Starting Time and Duration</button>
+        
+        <input type="hidden" name="gameconsole_enabled" id="gameconsole-enabled" value="false">
+    </div>
+        <!-- End of Game Console Section -->
+
+    <h2>Lighting load</h2>
+        <!-- Lighting Section -->
+        <!-- Lighting 1 -->
+    <div class="form-check form-switch">
+        <input class="form-check-input device-checkbox" type="checkbox" id="Lighting1-checkbox" data-device="Lighting1">
+        <label class="form-check-label" for="Lighting1-checkbox">Lighting 1</label>
+    </div>
+    <div class="fields_for_device" id="fields_for_Lighting1" style="display:none;">
+        <div class="mb-3">
+            <label for="Lighting1-nominal-power" class="form-label">Nominal power (W):</label>
+            <input type="text" class="form-control" id="Lighting1-nominal-power" name="Lighting1_nominal_power" value="200">
+        </div>
+        <div class="dynamic-fields" id="dynamic_Lighting1_fields">
+            <div class="mb-3">
+                <label for="Lighting1_starting_time_0" class="form-label">Starting Time:</label>
+                <input type="text" class="form-control" name="Lighting1_starting_time_0" value="20:00">
+            </div>
+            <div class="mb-3">
+                <label for="Lighting1_duration_0" class="form-label">Duration:</label>
+                <input type="text" class="form-control" name="Lighting1_duration_0" value="180">
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary add-fields-btn" data-device="Lighting1">Add new Starting Time and Duration</button>
+        
+        <input type="hidden" name="Lighting1_enabled" id="Lighting1-enabled" value="false">
+    </div>
+
+        <!-- Lighting 2 -->
+    <div class="form-check form-switch">
+        <input class="form-check-input device-checkbox" type="checkbox" id="Lighting2-checkbox" data-device="Lighting2">
+        <label class="form-check-label" for="Lighting1-checkbox">Lighting 2</label>
+    </div>
+    <div class="fields_for_device" id="fields_for_Lighting2" style="display:none;">
+        <div class="mb-3">
+            <label for="Lighting2-nominal-power" class="form-label">Nominal power (W):</label>
+            <input type="text" class="form-control" id="Lighting2-nominal-power" name="Lighting2_nominal_power" value="200">
+        </div>
+        <div class="dynamic-fields" id="dynamic_Lighting2_fields">
+            <div class="mb-3">
+                <label for="Lighting2_starting_time_0" class="form-label">Starting Time:</label>
+                <input type="text" class="form-control" name="Lighting2_starting_time_0" value="20:00">
+            </div>
+            <div class="mb-3">
+                <label for="Lighting2_duration_0" class="form-label">Duration:</label>
+                <input type="text" class="form-control" name="Lighting2_duration_0" value="180">
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary add-fields-btn" data-device="Lighting2">Add new Starting Time and Duration</button>
+        
+        <input type="hidden" name="Lighting2_enabled" id="Lighting2-enabled" value="false">
+    </div>
+    
+        <!-- Lighting 3 -->
+    <div class="form-check form-switch">
+        <input class="form-check-input device-checkbox" type="checkbox" id="Lighting3-checkbox" data-device="Lighting3">
+        <label class="form-check-label" for="Lighting3-checkbox">Lighting 3</label>
+    </div>
+    <div class="fields_for_device" id="fields_for_Lighting3" style="display:none;">
+        <div class="mb-3">
+            <label for="Lighting3-nominal-power" class="form-label">Nominal power (W):</label>
+            <input type="text" class="form-control" id="Lighting3-nominal-power" name="Lighting3_nominal_power" value="200">
+        </div>
+        <div class="dynamic-fields" id="dynamic_Lighting3_fields">
+            <div class="mb-3">
+                <label for="Lighting3_starting_time_0" class="form-label">Starting Time:</label>
+                <input type="text" class="form-control" name="Lighting3_starting_time_0" value="20:00">
+            </div>
+            <div class="mb-3">
+                <label for="Lighting3_duration_0" class="form-label">Duration:</label>
+                <input type="text" class="form-control" name="Lighting3_duration_0" value="180">
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary add-fields-btn" data-device="Lighting3">Add new Starting Time and Duration</button>
+        
+        <input type="hidden" name="Lighting3_enabled" id="Lighting3-enabled" value="false">
+    </div>
+    
+        <!-- End of Lighting Section -->
+    
+    
+    <!-- Temperature data -->
+    <input type="hidden" name="hiddenTemperatures" id="hiddenTemperatures" value="">
+    <input type="hidden" name="hiddenTimes" id="hiddenTimes" value="">
+    <!-- End of Temperature data -->
+          
+
+         
+              
+<button type="submit" class="btn btn-primary centered-button">Generate Load Profile</button>
+        </div>
+    </div>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+   
+    
+    <script>
+           // Location
+           // Function to get user's location
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Function to display user location
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            document.getElementById("location").innerHTML = "Latitude: " + latitude + "<br>Longitude: " + longitude;
+
+        // Call API to get weather forecast
+            getWeatherForecast(latitude, longitude);
+        }
+
+        // Function to handle errors in geolocation
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+        
+        
+        
+        // Weather 
+        
+        // Recupering temperature Data 
+        function WeatherData(times, temperatures) {
+        // Convert arrays to JSON strings for storage
+        document.getElementById('hiddenTemperatures').value = JSON.stringify(temperatures);
+        document.getElementById('hiddenTimes').value = JSON.stringify(times);
+
+        }
+        
+        
+        // Function to get weather forecast from API
+        function getWeatherForecast(latitude, longitude) {
+        var apiKey = "4ba96c77cb791fd763215e6d63b92916"; // Api code
+        var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?lat=" + latitude + "&lon=" + longitude + "&appid=" + apiKey;
+    
+        fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            var forecastData = data.list;
+    
+            var times = [];
+            var temperatures = [];
+    
+            // Set start time
+            var startTime = new Date();
+            startTime.setHours(22, 0, 0, 0); 
+    
+            // Find forecasts data for following day
+            forecastData.forEach(item => {
+                var forecastTime = new Date(item.dt * 1000);
+                if (forecastTime >= startTime && times.length < 10) { 
+                    times.push(forecastTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                    temperatures.push((item.main.temp - 273.15).toFixed(1)); 
+                }
+            });
+    
+            if(times.length > 0) {
+                createChart(times, temperatures);
+                WeatherData(times, temperatures); // to input data in weather data
+                
+            } else {
+                console.error('No forecast data available for the specified time range.');
+            }
+           
+        })
+        .catch(error => {
+            console.error('Error in weather forecast acquisition:', error);
+        });
+        }
+
+        // Function to create and display chart
+        function createChart(times, temperatures) {
+            var ctx = document.getElementById('weatherChart').getContext('2d');
+            var weatherChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: times,
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: temperatures,
+                        fill: false,
+                        borderColor: 'red',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                    text: 'Temperature (°C)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+        // Event listener for the button to get location
+        document.getElementById("getLocationBtn").addEventListener("click", getLocation)
+        
+        
+        //  Update Hidden Inputs
+        function updateHiddenInputs(temperatures, times) {
+       // Exemple de données, assurez-vous que vos vraies données ne sont pas undefined
+        temperatures = temperatures || [22, 23, 21]; // Exemple de valeurs par défaut
+        times = times || ["2024-03-07T10:00:00Z", "2024-03-07T13:00:00Z", "2024-03-07T16:00:00Z"]; // Exemple de valeurs par défaut
+        
+        document.getElementById('hiddenTemperatures').value = JSON.stringify(temperatures);
+        document.getElementById('hiddenTimes').value = JSON.stringify(times);
+        }
+       // End of Update Hidden Inputs
+       // End of Weather forecast
+
+
+        // Occupancy 
+        // Function for adding hours to the table
+        function addHours() {
+        var table = document.getElementById("residentsTable");
+        var row = table.rows[0];
+        
+        // Ajouter un en-tête pour "Overnight"
+        var cellOvernight = document.createElement("th");
+        cellOvernight.textContent = "Overnight (0h-5h)";
+        row.appendChild(cellOvernight);
+        
+        // Ajouter un en-tête pour "Morning"
+        var cellMorning = document.createElement("th");
+        cellMorning.textContent = "Morning (6h-7h)";
+        row.appendChild(cellMorning);
+        
+        // Ajouter les heures de 8h à 24h
+        for (var i = 8; i < 24; i++) {
+            var cell = document.createElement("th");
+            cell.textContent = i + "h";
+            row.appendChild(cell);
+        }
+        }
+        
+        // next day status 
+        function setDefaultOccupancy() {
+        var status = document.getElementById("Next-day-status").value;
+        var selects = document.getElementById("residentsTable").getElementsByTagName('select');
+
+        // Set default values for Workday
+        if (status === "Workday") {
+            selects[0].value = "Yes"; // "Overnight"
+            selects[1].value = "Yes"; // "Morning"
+            for (var i = 2; i < selects.length; i++) { // 9h to 17h
+                if (i < 3 || i > 12) { // before 9h or after 18h
+                    selects[i].value = "Yes";
+                } else { // from 9h to 17h
+                    selects[i].value = "No";
+                }
+            }
+        } 
+        // Set default values for Weekend Day
+        else if (status === "Weekend Day") {
+            for (var i = 0; i < selects.length; i++) {
+                selects[i].value = "Yes"; // all the day
+            }
+        } 
+        // Définir les valeurs par défaut pour "Holiday"
+        else if (status === "Holiday") {
+            for (var i = 0; i < selects.length; i++) {
+                if (i < 12) { // Before 18h
+                    selects[i].value = "Yes";
+                } else { // from 18h to 23h
+                    selects[i].value = "No";
+                }
+            }
+        }
+
+       }
+     
+     document.getElementById("Next-day-status").addEventListener("change", setDefaultOccupancy);
+     // end of next day status default values 
+
+
+
+    // Graph drawing function
+    function drawChart(data) {
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: 24 }, (_, i) => i + 'h'),
+                datasets: [{
+                    label: 'Presence',
+                    data: data,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // updateChart
+    function updateChart() {
+    var data = [];
+    var selects = document.getElementById("residentsTable").getElementsByTagName('select');
+    // Overnight (0h-5h)
+    var overnightValue = selects[0].value === "Yes" ? 1 : 0;
+    for (var i = 0; i < 6; i++) {
+        data.push(overnightValue); // Repeat value 6 times
+    }
+    // Morning (6h-7h)
+    var morningValue = selects[1].value === "Yes" ? 1 : 0;
+    for (var i = 0; i < 2; i++) {
+        data.push(morningValue); // Repeat value 2 times
+    }
+    // for 9h to 23h
+    for (var i = 2; i < selects.length; i++) {
+        data.push(selects[i].value === "Yes" ? 1 : 0); 
+    }
+    drawChart(data); 
+    OccupancyData(data);
+   }
+    
+
+    // Function for adding editable input fields to the table
+      function addEditableCells() {
+    var table = document.getElementById("residentsTable").getElementsByTagName('tbody')[0].getElementsByTagName('tr')[0];
+    // Add selection fields for Overnight and Morning
+    for (var i = 0; i < 2; i++) {
+        var cell = document.createElement("td");
+        var select = document.createElement("select");
+        select.innerHTML = '<option value="No">No</option><option value="Yes">Yes</option>';
+        cell.appendChild(select);
+        table.appendChild(cell);
+    }
+    // Add selection fields for each hour from 9h to 23h
+    for (var i = 8; i < 24; i++) {
+        var cell = document.createElement("td");
+        var select = document.createElement("select");
+        select.innerHTML = '<option value="No">No</option><option value="Yes">Yes</option>';
+        cell.appendChild(select);
+        table.appendChild(cell);
+    }
+    }
+    
+           
+    addHours();
+    addEditableCells();
+            
+    // occupency data
+    function OccupancyData(data) {
+    var jsonData = JSON.stringify(data);
+    // Update hidden input value
+    document.getElementById('hiddenOccupancy').value = jsonData;
+     }             
+    
+    // End  of occupancy
+        
+    // Thermal appliances
+    // air to air heat pump 
+    function showAdditionalFields(selectedValue) {
+             var additionalFields = document.getElementById("additional-fields");
+             if (selectedValue === "1") { // If "Air/air heat pump" is selected
+                            additionalFields.style.display = "block";
+             } else {
+                            additionalFields.style.display = "none";
+                        }
+     }
+     
+    // Water heater 
+    function showAdditionalFieldsWaterHeater(selectedValue) {
+            var additionalFields = document.getElementById("additional-fields-water-heater");
+            if (selectedValue === "1") { // If "Electric Water Heater" is selected
+                additionalFields.style.display = "block";
+            } else {
+                additionalFields.style.display = "none";
+            }
+    }
+    
+    // Refrigerator
+    function showAdditionalFieldsRefrigerator(selectedValue) {
+            var additionalFields = document.getElementById("additional-fields-refrigerator");
+            if (selectedValue === "1") { // If "Refrigerator" is selected
+                additionalFields.style.display = "block";
+            } else {
+                additionalFields.style.display = "none";
+            }
+    }
+    
+    // Washing machine 
+         document.addEventListener('DOMContentLoaded', function() {
+         document.getElementById('Washingmachine-checkbox').addEventListener('change', function() {
+         document.getElementById('Washingmachine-enabled').value = this.checked ? 'true' : 'false';
+        });
+    });
+    // end of Washing machine 
+    // End of thermal appliances
+
+
+
+    // ON/OFF Appliances
+    // TV
+        document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('tv-checkbox').addEventListener('change', function() {
+        document.getElementById('tv-enabled').value = this.checked ? 'true' : 'false';
+        });
+    });
+    // end of TV
+    
+    // Microwave
+        document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('microwave-checkbox').addEventListener('change', function() {
+        document.getElementById('microwave-enabled').value = this.checked ? 'true' : 'false';
+        });
+    });
+    // End of Microwave
+     
+    // Oven
+       document.addEventListener('DOMContentLoaded', function() {
+       document.getElementById('oven-checkbox').addEventListener('change', function() {
+       document.getElementById('oven-enabled').value = this.checked ? 'true' : 'false';
+       });
+     });
+    // end of oven
+        
+    // iron
+       document.addEventListener('DOMContentLoaded', function() {
+       document.getElementById('iron-checkbox').addEventListener('change', function() {
+       document.getElementById('iron-enabled').value = this.checked ? 'true' : 'false';
+      });
+    });
+    // End of iron 
+     
+    // hairdryer
+     document.addEventListener('DOMContentLoaded', function() {
+     document.getElementById('hairdryer-checkbox').addEventListener('change', function() {
+     document.getElementById('hairdryer-enabled').value = this.checked ? 'true' : 'false';
+     });
+    });
+    // End of hairdryer
+     
+    // fan
+     document.addEventListener('DOMContentLoaded', function() {
+     document.getElementById('fan-checkbox').addEventListener('change', function() {
+     document.getElementById('fan-enabled').value = this.checked ? 'true' : 'false';
+     });
+    });  
+    // End of fan
+     
+    // gameconsole
+      document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('gameconsole-checkbox').addEventListener('change', function() {
+      document.getElementById('gameconsole-enabled').value = this.checked ? 'true' : 'false';
+     });
+    });
+    // End of gameconsole
+     
+    // Lighting
+    // Lighting 1
+     document.addEventListener('DOMContentLoaded', function() {
+     document.getElementById('Lighting1-checkbox').addEventListener('change', function() {
+     document.getElementById('Lighting1-enabled').value = this.checked ? 'true' : 'false';
+     });
+   });
+    
+   // Lighting 2
+    document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('Lighting2-checkbox').addEventListener('change', function() {
+    document.getElementById('Lighting2-enabled').value = this.checked ? 'true' : 'false';
+    });
+  });
+   
+  // Lighting 3
+   document.addEventListener('DOMContentLoaded', function() {
+   document.getElementById('Lighting3-checkbox').addEventListener('change', function() {
+   document.getElementById('Lighting3-enabled').value = this.checked ? 'true' : 'false';
+   });
+  });
+     
+  // End of Lighting
+     
+     
+     
+     
+     
+   document.addEventListener('DOMContentLoaded', function() {
+   // Manage display/hiding of device sections when checkbox is clicked
+        document.querySelectorAll('.device-checkbox').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const device = this.getAttribute('data-device');
+            const fieldsDiv = document.getElementById(`fields_for_${device}`);
+            fieldsDiv.style.display = this.checked ? 'block' : 'none';
+        });
+    });
+
+    // Dynamic fields for Starting Time and Duration added for each device
+    document.querySelectorAll('.add-fields-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const device = this.getAttribute('data-device');
+            const container = document.getElementById(`dynamic_${device}_fields`);
+            addFieldsToContainer(container, device);
+        });
+     });
+   });
+
+   function addFieldsToContainer(container, device) {
+    // Calculation of the new index based on the number of elements already present in the container
+    const newIndex = container.querySelectorAll('.mb-3').length / 2; // Each set has 2 fields
+    const newFields = `
+        <div class="mb-3">
+            <label class="form-label">Starting Time:</label>
+            <input type="text" class="form-control" name="${device}_starting_time_${newIndex}" placeholder="HH:MM">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Duration:</label>
+            <input type="text" class="form-control" name="${device}_duration_${newIndex}" placeholder="Duration in minutes">
+        </div>
+    `;
+    container.innerHTML += newFields;
+    }
+       
+        
+
+     
+
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

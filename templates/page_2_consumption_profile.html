@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Load Profile</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+    }
+    .content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .centered-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+    h1, h2 {
+        text-align: center;
+    }
+    h1 { font-size: 50px; margin-bottom: 20px; }
+    h2 { font-size: 24px; margin-top: 20px; }
+    button, .btn-primary {
+        padding: 10px 20px;
+        font-size: 18px;
+        display: block;
+        margin: 20px auto;
+    }
+    
+    </style>
+</head>
+<body>
+    <h1>Load Profile</h1>
+    
+   
+
+    <canvas id="chargeProfileChart"></canvas>
+  
+    <button onclick="generateAndDownloadCSV()">Download consumption CSV file</button>
+
+<script>
+    // Assuming P_consumption_total and dt are passed from Flask
+    var P_consumption_total = {{ P_consumption_total_list|tojson }};
+    var dt = {{ Simulation_StepTime |tojson }}; // dt in seconds
+    
+    // Calculate the number of data points based on 24 hours
+    var totalSeconds = 3600 * 24;
+    var totalPoints = totalSeconds / dt;
+    
+    // Generate labels
+    var labels = [];
+    for (var i = 0; i < totalPoints; i++) {
+        var totalSecondsPassed = i * dt;
+        var hours = Math.floor(totalSecondsPassed / 3600);
+        var minutes = Math.floor((totalSecondsPassed % 3600) / 60);
+        var seconds = totalSecondsPassed % 60;
+    
+        // Format the time string based on dt
+        var timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        if (dt < 60) { // If dt is less than a minute, include seconds in the labels
+            timeString += `:${String(seconds).padStart(2, '0')}`;
+        }
+    
+        labels.push(timeString);
+    }
+    
+    var ctx = document.getElementById('chargeProfileChart').getContext('2d');
+    var chargeProfileChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Power Consumption (W)',
+                data: P_consumption_total,
+                borderColor: 'black',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Time of Day'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Power (W)'
+                    }
+                }
+            }
+        }
+    });
+    
+    
+    function generateAndDownloadCSV() {
+        var totalSeconds = 3600 * 24;
+        var totalPoints = totalSeconds / dt;
+        
+        // Generating the time vector
+        var labels = [];
+        for (var i = 0; i < totalPoints; i++) {
+            var totalSecondsPassed = i * dt;
+            var hours = Math.floor(totalSecondsPassed / 3600);
+            var minutes = Math.floor((totalSecondsPassed % 3600) / 60);
+            var seconds = totalSecondsPassed % 60;
+            
+            var timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+            if (dt < 60) { // If dt is less than a minute, include seconds
+                timeString += `:${String(seconds).padStart(2, '0')}`;
+            }
+            labels.push(timeString);
+        }
+    
+        // Preparing the data for CSV
+        var data = [["Time (hh:mm:ss)", "Consumption (W)"]];
+        for (var i = 0; i < labels.length && i < P_consumption_total.length; i++) {
+            data.push([labels[i], P_consumption_total[i]]);
+        }
+        
+        // Converting the data to a CSV string
+        var csvContent = "data:text/csv;charset=utf-8,";
+        data.forEach(function(rowArray) {
+            var row = rowArray.join(",");
+            csvContent += row + "\r\n"; // Add a new line at the end of each row
+        });
+    
+        // Creating a link to download the CSV file
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "ConsumptionData.csv");
+        document.body.appendChild(link); // Required for FF
+    
+        // Simulate click to trigger download
+        link.click();
+        document.body.removeChild(link); 
+    }
+</script>
+    
+
+</body>
+</html>

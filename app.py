@@ -40,7 +40,7 @@ def get_location():
             return jsonify({"error": "Failed to fetch location", "status_code": response.status_code}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
 #@app.route('/process_form', methods=['POST','GET'])
 def process_form():
 

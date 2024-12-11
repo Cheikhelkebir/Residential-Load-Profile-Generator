@@ -540,7 +540,7 @@
         }
         */
         async function getLocation() {
-            const apiUrl = "/get-location"; // Flask endpoint
+            const apiUrl = "get-location"; // Flask endpoint
 
             try {
                 const response = await fetch(apiUrl);
@@ -562,7 +562,7 @@
                 console.error("Error fetching location:", error);
                 alert("An error occurred while fetching the location.");
             }
-        }       
+        }
 
         // Function to display user location
         function showPosition(position) {

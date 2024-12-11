@@ -46,27 +46,27 @@
         th { background-color: #f2f2f2; }
         canvas { border: 0.1px solid black; }
 
-        #fields_for_cb1 { 
-            display: none; 
+        #fields_for_cb1 {
+            display: none;
         }
-        #fields_for_cb2 { 
-            display: none; 
+        #fields_for_cb2 {
+            display: none;
         }
-        #fields_for_cb3 { 
-            display: none; 
+        #fields_for_cb3 {
+            display: none;
         }
-        #fields_for_cb4 { 
-            display: none; 
+        #fields_for_cb4 {
+            display: none;
         }
     </style>
     </style>
 </head>
 <body>
     <div class="container">
-        <form action="/process_form" method="post"> 
+        <form method="post">
         <div class="content">
             <h1>Load Profile Generator</h1>
-             
+
             <!-- Location -->
             <h2>Location</h2>
             <button type="button" id="getLocationBtn" class="btn btn-primary">Get Location</button>
@@ -76,7 +76,7 @@
            <!-- Forecast chart -->
             <canvas id="weatherChart" width="400" height="200"></canvas>
           <!-- End of Forecast chart -->
-          
+
           <!-- Next day status -->
           <h2>Next Day Status</h2>
             <label for="Next-day-status">Schedule Status:</label>
@@ -87,8 +87,8 @@
                 <option value="Holiday">Holiday</option>
            </select>
           <!-- End of Next day status -->
-          
-          
+
+
           <h2>Household occupants</h2>
           <label for="Household-occupants">Number of occupants living in the house:</label>
          <input type="text" id="Household-occupants" name="Household-occupants" value="4"><br>
@@ -103,15 +103,15 @@
              </thead>
              <tbody>
              <tr>
-          <td>Occupancy</td>  
+          <td>Occupancy</td>
              </tr>
             </tbody>
             </table>
           <input type="hidden" name="Occupancy" id="hiddenOccupancy" value="">
           <button type="button" onclick="updateChart()">Occupancy profile</button>
-          <canvas id="myChart" width="400" height="200"></canvas>       
+          <canvas id="myChart" width="400" height="200"></canvas>
        <!-- End of PRESENCE of residents in the house -->
-       
+
        <!-- Simulation step time -->
        <h2>Simulation step time</h2>
        <label for="Simulation-StepTime">Step Time (s):</label>
@@ -140,7 +140,7 @@
           <option value="RT 2020">RT 2020</option>
       </select>
       <!-- End of Isolation type -->
-      
+
       <!-- Cold water temperature -->
       <input type="hidden" id="cold-water" name="cold-water" value="10">
       <!-- End of Cold water temperature -->
@@ -153,7 +153,7 @@
            <option selected>Types</option>
            <option value="1">Air/air heat pump</option>
        </select>
-       
+
        <!-- Additional fields for Air/air heat pump -->
        <div id="additional-fields" style="display: none;">
            <h2>Additional Fields</h2>
@@ -168,7 +168,7 @@
            <option selected>Types</option>
            <option value="1">Electric Water Heater</option>
        </select>
-       
+
        <!-- Additional fields for Electric Water Heater -->
        <div id="additional-fields-water-heater" style="display: none;">
            <h2>Additional Fields for Electric Water Heater</h2>
@@ -185,7 +185,7 @@
            <option selected>Types</option>
            <option value="1">Refrigerator</option>
        </select>
-       
+
        <!-- Additional fields for Refrigerator -->
        <div id="additional-fields-refrigerator" style="display: none;">
            <h2>Additional Fields for Refrigerator</h2>
@@ -205,7 +205,7 @@
            <input type="text" id="num-shelves-refrigerator" name="num-shelves-refrigerator" value="3"><br>
        </div>
        <!-- End of Refrigerator -->
-       
+
        <!-- Washing devices -->
        <h2>Washing Devices</h2>
        <div class="form-check form-switch">
@@ -225,13 +225,13 @@
          <input type="hidden" name="Washingmachine_enabled" id="Washingmachine-enabled" value="false">
       </div>
          <!-- end of Washing devices -->
-    
+
 
 
             <!-- ON/OFF appliances -->
             <h2>Punctual loads</h2>
                <!-- Checkboxes -->
-            
+
                <!-- TV -->
     <div class="form-check form-switch">
       <input class="form-check-input device-checkbox" type="checkbox" id="tv-checkbox" data-device="tv">
@@ -257,7 +257,7 @@
       </div>
       <!-- Button to Add More Fields -->
       <button type="button" class="btn btn-primary add-fields-btn" data-device="tv">Add new Starting Time and Duration</button>
-      
+
       <input type="hidden" name="tv_enabled" id="tv-enabled" value="false">
     </div>
               <!-- End TV -->
@@ -288,7 +288,7 @@
       </div>
       <!-- Button to Add More Fields -->
       <button type="button" class="btn btn-primary add-fields-btn" data-device="microwave">Add new Starting Time and Duration</button>
-    
+
     <input type="hidden" name="microwave_enabled" id="microwave-enabled" value="false">
     </div>
             <!-- End of Microwave Section -->
@@ -319,7 +319,7 @@
         </div>
         <!-- Button to Add More Fields -->
         <button type="button" class="btn btn-primary add-fields-btn" data-device="oven">Add new Starting Time and Duration</button>
-        
+
         <input type="hidden" name="oven_enabled" id="oven-enabled" value="false">
     </div>
           <!-- End of Oven Section -->
@@ -345,7 +345,7 @@
             </div>
         </div>
         <button type="button" class="btn btn-primary add-fields-btn" data-device="iron">Add new Starting Time and Duration</button>
-        
+
         <input type="hidden" name="iron_enabled" id="iron-enabled" value="false">
     </div>
            <!-- End of Iron Section -->
@@ -371,11 +371,11 @@
             </div>
         </div>
         <button type="button" class="btn btn-primary add-fields-btn" data-device="hairdryer">Add new Starting Time and Duration</button>
-        
+
         <input type="hidden" name="hairdryer_enabled" id="hairdryer-enabled" value="false">
     </div>
         <!-- End of Hair Dryer Section -->
-    
+
           <!-- Fan Section -->
     <div class="form-check form-switch">
         <input class="form-check-input device-checkbox" type="checkbox" id="fan-checkbox" data-device="fan">
@@ -397,12 +397,12 @@
             </div>
         </div>
         <button type="button" class="btn btn-primary add-fields-btn" data-device="fan">Add new Starting Time and Duration</button>
-        
+
         <input type="hidden" name="fan_enabled" id="fan-enabled" value="false">
     </div>
           <!-- End of Fan Section -->
-    
-    
+
+
         <!-- Game Console Section -->
     <div class="form-check form-switch">
         <input class="form-check-input device-checkbox" type="checkbox" id="gameconsole-checkbox" data-device="gameconsole">
@@ -424,7 +424,7 @@
             </div>
         </div>
         <button type="button" class="btn btn-primary add-fields-btn" data-device="gameconsole">Add new Starting Time and Duration</button>
-        
+
         <input type="hidden" name="gameconsole_enabled" id="gameconsole-enabled" value="false">
     </div>
         <!-- End of Game Console Section -->
@@ -452,7 +452,7 @@
             </div>
         </div>
         <button type="button" class="btn btn-primary add-fields-btn" data-device="Lighting1">Add new Starting Time and Duration</button>
-        
+
         <input type="hidden" name="Lighting1_enabled" id="Lighting1-enabled" value="false">
     </div>
 
@@ -477,10 +477,10 @@
             </div>
         </div>
         <button type="button" class="btn btn-primary add-fields-btn" data-device="Lighting2">Add new Starting Time and Duration</button>
-        
+
         <input type="hidden" name="Lighting2_enabled" id="Lighting2-enabled" value="false">
     </div>
-    
+
         <!-- Lighting 3 -->
     <div class="form-check form-switch">
         <input class="form-check-input device-checkbox" type="checkbox" id="Lighting3-checkbox" data-device="Lighting3">
@@ -502,21 +502,21 @@
             </div>
         </div>
         <button type="button" class="btn btn-primary add-fields-btn" data-device="Lighting3">Add new Starting Time and Duration</button>
-        
+
         <input type="hidden" name="Lighting3_enabled" id="Lighting3-enabled" value="false">
     </div>
-    
+
         <!-- End of Lighting Section -->
-    
-    
+
+
     <!-- Temperature data -->
     <input type="hidden" name="hiddenTemperatures" id="hiddenTemperatures" value="">
     <input type="hidden" name="hiddenTimes" id="hiddenTimes" value="">
     <!-- End of Temperature data -->
-          
 
-         
-              
+
+
+
 <button type="submit" class="btn btn-primary centered-button">Generate Load Profile</button>
         </div>
     </div>
@@ -525,8 +525,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-   
-    
+
+
     <script>
            // Location
            // Function to get user's location
@@ -565,54 +565,54 @@
                     break;
             }
         }
-        
-        
-        
-        // Weather 
-        
-        // Recupering temperature Data 
+
+
+
+        // Weather
+
+        // Recupering temperature Data
         function WeatherData(times, temperatures) {
         // Convert arrays to JSON strings for storage
         document.getElementById('hiddenTemperatures').value = JSON.stringify(temperatures);
         document.getElementById('hiddenTimes').value = JSON.stringify(times);
 
         }
-        
-        
+
+
         // Function to get weather forecast from API
         function getWeatherForecast(latitude, longitude) {
         var apiKey = "4ba96c77cb791fd763215e6d63b92916"; // Api code
         var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?lat=" + latitude + "&lon=" + longitude + "&appid=" + apiKey;
-    
+
         fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
             var forecastData = data.list;
-    
+
             var times = [];
             var temperatures = [];
-    
+
             // Set start time
             var startTime = new Date();
-            startTime.setHours(22, 0, 0, 0); 
-    
+            startTime.setHours(22, 0, 0, 0);
+
             // Find forecasts data for following day
             forecastData.forEach(item => {
                 var forecastTime = new Date(item.dt * 1000);
-                if (forecastTime >= startTime && times.length < 10) { 
+                if (forecastTime >= startTime && times.length < 10) {
                     times.push(forecastTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-                    temperatures.push((item.main.temp - 273.15).toFixed(1)); 
+                    temperatures.push((item.main.temp - 273.15).toFixed(1));
                 }
             });
-    
+
             if(times.length > 0) {
                 createChart(times, temperatures);
                 WeatherData(times, temperatures); // to input data in weather data
-                
+
             } else {
                 console.error('No forecast data available for the specified time range.');
             }
-           
+
         })
         .catch(error => {
             console.error('Error in weather forecast acquisition:', error);
@@ -655,14 +655,14 @@
 
         // Event listener for the button to get location
         document.getElementById("getLocationBtn").addEventListener("click", getLocation)
-        
-        
+
+
         //  Update Hidden Inputs
         function updateHiddenInputs(temperatures, times) {
        // Exemple de données, assurez-vous que vos vraies données ne sont pas undefined
         temperatures = temperatures || [22, 23, 21]; // Exemple de valeurs par défaut
         times = times || ["2024-03-07T10:00:00Z", "2024-03-07T13:00:00Z", "2024-03-07T16:00:00Z"]; // Exemple de valeurs par défaut
-        
+
         document.getElementById('hiddenTemperatures').value = JSON.stringify(temperatures);
         document.getElementById('hiddenTimes').value = JSON.stringify(times);
         }
@@ -670,22 +670,22 @@
        // End of Weather forecast
 
 
-        // Occupancy 
+        // Occupancy
         // Function for adding hours to the table
         function addHours() {
         var table = document.getElementById("residentsTable");
         var row = table.rows[0];
-        
+
         // Ajouter un en-tête pour "Overnight"
         var cellOvernight = document.createElement("th");
         cellOvernight.textContent = "Overnight (0h-5h)";
         row.appendChild(cellOvernight);
-        
+
         // Ajouter un en-tête pour "Morning"
         var cellMorning = document.createElement("th");
         cellMorning.textContent = "Morning (6h-7h)";
         row.appendChild(cellMorning);
-        
+
         // Ajouter les heures de 8h à 24h
         for (var i = 8; i < 24; i++) {
             var cell = document.createElement("th");
@@ -693,8 +693,8 @@
             row.appendChild(cell);
         }
         }
-        
-        // next day status 
+
+        // next day status
         function setDefaultOccupancy() {
         var status = document.getElementById("Next-day-status").value;
         var selects = document.getElementById("residentsTable").getElementsByTagName('select');
@@ -710,13 +710,13 @@
                     selects[i].value = "No";
                 }
             }
-        } 
+        }
         // Set default values for Weekend Day
         else if (status === "Weekend Day") {
             for (var i = 0; i < selects.length; i++) {
                 selects[i].value = "Yes"; // all the day
             }
-        } 
+        }
         // Définir les valeurs par défaut pour "Holiday"
         else if (status === "Holiday") {
             for (var i = 0; i < selects.length; i++) {
@@ -729,9 +729,9 @@
         }
 
        }
-     
+
      document.getElementById("Next-day-status").addEventListener("change", setDefaultOccupancy);
-     // end of next day status default values 
+     // end of next day status default values
 
 
 
@@ -776,12 +776,12 @@
     }
     // for 9h to 23h
     for (var i = 2; i < selects.length; i++) {
-        data.push(selects[i].value === "Yes" ? 1 : 0); 
+        data.push(selects[i].value === "Yes" ? 1 : 0);
     }
-    drawChart(data); 
+    drawChart(data);
     OccupancyData(data);
    }
-    
+
 
     // Function for adding editable input fields to the table
       function addEditableCells() {
@@ -803,22 +803,22 @@
         table.appendChild(cell);
     }
     }
-    
-           
+
+
     addHours();
     addEditableCells();
-            
+
     // occupency data
     function OccupancyData(data) {
     var jsonData = JSON.stringify(data);
     // Update hidden input value
     document.getElementById('hiddenOccupancy').value = jsonData;
-     }             
-    
+     }
+
     // End  of occupancy
-        
+
     // Thermal appliances
-    // air to air heat pump 
+    // air to air heat pump
     function showAdditionalFields(selectedValue) {
              var additionalFields = document.getElementById("additional-fields");
              if (selectedValue === "1") { // If "Air/air heat pump" is selected
@@ -827,8 +827,8 @@
                             additionalFields.style.display = "none";
                         }
      }
-     
-    // Water heater 
+
+    // Water heater
     function showAdditionalFieldsWaterHeater(selectedValue) {
             var additionalFields = document.getElementById("additional-fields-water-heater");
             if (selectedValue === "1") { // If "Electric Water Heater" is selected
@@ -837,7 +837,7 @@
                 additionalFields.style.display = "none";
             }
     }
-    
+
     // Refrigerator
     function showAdditionalFieldsRefrigerator(selectedValue) {
             var additionalFields = document.getElementById("additional-fields-refrigerator");
@@ -847,14 +847,14 @@
                 additionalFields.style.display = "none";
             }
     }
-    
-    // Washing machine 
+
+    // Washing machine
          document.addEventListener('DOMContentLoaded', function() {
          document.getElementById('Washingmachine-checkbox').addEventListener('change', function() {
          document.getElementById('Washingmachine-enabled').value = this.checked ? 'true' : 'false';
         });
     });
-    // end of Washing machine 
+    // end of Washing machine
     // End of thermal appliances
 
 
@@ -867,7 +867,7 @@
         });
     });
     // end of TV
-    
+
     // Microwave
         document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('microwave-checkbox').addEventListener('change', function() {
@@ -875,7 +875,7 @@
         });
     });
     // End of Microwave
-     
+
     // Oven
        document.addEventListener('DOMContentLoaded', function() {
        document.getElementById('oven-checkbox').addEventListener('change', function() {
@@ -883,15 +883,15 @@
        });
      });
     // end of oven
-        
+
     // iron
        document.addEventListener('DOMContentLoaded', function() {
        document.getElementById('iron-checkbox').addEventListener('change', function() {
        document.getElementById('iron-enabled').value = this.checked ? 'true' : 'false';
       });
     });
-    // End of iron 
-     
+    // End of iron
+
     // hairdryer
      document.addEventListener('DOMContentLoaded', function() {
      document.getElementById('hairdryer-checkbox').addEventListener('change', function() {
@@ -899,15 +899,15 @@
      });
     });
     // End of hairdryer
-     
+
     // fan
      document.addEventListener('DOMContentLoaded', function() {
      document.getElementById('fan-checkbox').addEventListener('change', function() {
      document.getElementById('fan-enabled').value = this.checked ? 'true' : 'false';
      });
-    });  
+    });
     // End of fan
-     
+
     // gameconsole
       document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('gameconsole-checkbox').addEventListener('change', function() {
@@ -915,7 +915,7 @@
      });
     });
     // End of gameconsole
-     
+
     // Lighting
     // Lighting 1
      document.addEventListener('DOMContentLoaded', function() {
@@ -923,27 +923,27 @@
      document.getElementById('Lighting1-enabled').value = this.checked ? 'true' : 'false';
      });
    });
-    
+
    // Lighting 2
     document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('Lighting2-checkbox').addEventListener('change', function() {
     document.getElementById('Lighting2-enabled').value = this.checked ? 'true' : 'false';
     });
   });
-   
+
   // Lighting 3
    document.addEventListener('DOMContentLoaded', function() {
    document.getElementById('Lighting3-checkbox').addEventListener('change', function() {
    document.getElementById('Lighting3-enabled').value = this.checked ? 'true' : 'false';
    });
   });
-     
+
   // End of Lighting
-     
-     
-     
-     
-     
+
+
+
+
+
    document.addEventListener('DOMContentLoaded', function() {
    // Manage display/hiding of device sections when checkbox is clicked
         document.querySelectorAll('.device-checkbox').forEach(function(checkbox) {
@@ -979,10 +979,10 @@
     `;
     container.innerHTML += newFields;
     }
-       
-        
 
-     
+
+
+
 
 
     </script>

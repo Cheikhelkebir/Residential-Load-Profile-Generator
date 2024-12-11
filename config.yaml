@@ -1,0 +1,17 @@
+name: "Residential Load Profile Generator"
+version: "1.3"
+slug: "profile_generator"
+description: "Simple physics-based model application for predicting the next 24 hours of consumption."
+homeassistant_api: true
+startup: application
+ingress: true
+panel_icon: "mdi:flash"
+panel_title: "Profile Generator"
+ports:
+  "8099/tcp": 8099
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386

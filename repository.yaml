@@ -1,0 +1,4 @@
+# https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
+name: Home Assistant add-on repository
+url: 'https://github.com/Cheikhelkebir/Residential-Load-Profile-Generator'
+maintainer: Cheikhelkebir

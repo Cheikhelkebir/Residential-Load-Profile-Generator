@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir flask
 RUN pip install --no-cache-dir pandas
 RUN pip install --no-cache-dir scipy
 RUN pip install --no-cache-dir openpyxl
+RUN pip install --no-cache-dir requests
 
 # Run the Flask application
 CMD ["python", "app.py"]

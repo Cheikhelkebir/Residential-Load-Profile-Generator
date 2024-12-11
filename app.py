@@ -11,10 +11,36 @@ from electrical_equipment.refrigerator import refrigerator_fn
 from electrical_equipment.WashingMachine import WashingMachine_fun
 from electrical_equipment.Waterheater import Waterheater_fun
 from electrical_equipment.punctual_load import punctual_load_fun
-
-
+import os
+import requests
 app = Flask(__name__)
 
+@app.route('/get-location', methods=['GET'])
+def get_location():
+    supervisor_token = os.getenv("SUPERVISOR_TOKEN")
+    #if not supervisor_token:
+    #    return jsonify({"error": "Supervisor token not found"}), 500
+
+    api_url = "http://supervisor/core/api/config"
+    headers = {"Authorization": f"Bearer {supervisor_token}"}
+    print('test')
+    try:
+        return jsonify({
+            "latitude": 49.0527528,
+            "longitude": 2.0388736
+        })
+        response = requests.get(api_url, headers=headers)
+        if response.status_code == 200:
+            config = response.json()
+            return jsonify({
+                "latitude": config.get("latitude"),
+                "longitude": config.get("longitude")
+            })
+        else:
+            return jsonify({"error": "Failed to fetch location", "status_code": response.status_code}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 #@app.route('/process_form', methods=['POST','GET'])
 def process_form():
 
@@ -457,4 +483,5 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port="8099")
+    #app.run(host='0.0.0.0', port="8099")
+    app.run(host='0.0.0.0')

@@ -530,13 +530,39 @@
     <script>
            // Location
            // Function to get user's location
-        function getLocation() {
+        /*
+           function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
                 alert("Geolocation is not supported by this browser.");
             }
         }
+        */
+        async function getLocation() {
+            const apiUrl = "/get-location"; // Flask endpoint
+
+            try {
+                const response = await fetch(apiUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    const latitude = data.latitude;
+                    const longitude = data.longitude;
+
+                    // Display the location on the page
+                    document.getElementById("location").innerHTML = `Latitude: ${latitude}<br>Longitude: ${longitude}`;
+
+                    // Call the weather forecast API
+                    getWeatherForecast(latitude, longitude);
+                } else {
+                    console.error("Failed to fetch location:", response.statusText);
+                    alert("Could not fetch location. Please try again.");
+                }
+            } catch (error) {
+                console.error("Error fetching location:", error);
+                alert("An error occurred while fetching the location.");
+            }
+        }       
 
         // Function to display user location
         function showPosition(position) {

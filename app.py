@@ -25,10 +25,10 @@ def get_location():
     headers = {"Authorization": f"Bearer {supervisor_token}"}
     print('test')
     try:
-        return jsonify({
-            "latitude": 49.0527528,
-            "longitude": 2.0388736
-        })
+        #return jsonify({
+        #    "latitude": 49.0527528,
+        #    "longitude": 2.0388736
+        #})
         response = requests.get(api_url, headers=headers)
         if response.status_code == 200:
             config = response.json()

@@ -1,5 +1,5 @@
 name: "Residential Load Profile Generator"
-version: "1.4"
+version: "1.5"
 slug: "profile_generator"
 description: "Simple physics-based model application for predicting the next 24 hours of consumption."
 homeassistant_api: true
